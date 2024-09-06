@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNumber, IsNotEmpty } from 'class-validator';
 
-export class DeleteUserResDto {
+export class DeleteClientResDto {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()

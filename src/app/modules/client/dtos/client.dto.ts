@@ -1,34 +1,34 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 
-export class UserDto {
+export class ClientDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    name: string;   
-
-    @ApiProperty()
-    @IsString()
-    @IsNotEmpty()
-    address: string;   
+    emotion: string;
 
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    phone: string;
-
-    @ApiProperty()
-    @IsString()
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
-
+    physiological_reaction: string;
+  
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    birthdate: string;
+    situation: string;
 
     @ApiProperty()
     @IsString()
-    crp: string;
+    @IsNotEmpty()
+    thought: string;
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    behavior: string;
+  
+    @ApiProperty()
+    @IsNumber()
+    @IsNotEmpty()
+    pacientId: number;
 }

@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmptyObject } from 'class-validator';
-import { UserDto } from '@app/modules/user/dtos/user.dto';
+import { ClientDto } from '@app/modules/client/dtos/client.dto';
 
-export class GetUserResDto {
+export class GetSingleClientResDto {
   @ApiProperty()
   @IsNotEmptyObject({ nullable: false })
-  user: UserDto;
+  client: ClientDto;
 }
