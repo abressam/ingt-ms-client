@@ -9,6 +9,6 @@ export enum PhysiologicalReaction {
     vertigemOuTontura = 'Vertigem ou Tontura: Sentir-se tonto ou com a sensação de que o ambiente está girando.',
     sensacaoDeFormigamento = 'Sensação de Formigamento: Experienciar formigamento ou dormência nas extremidades.',
     fadiga = 'Fadiga: Sentir-se cansado ou sem energia, mesmo sem atividade física intensa.',
-    agressao = 'Agressão: reações agressivas, tanto físicas quanto verbais, em resposta a situações de estresse',
+    agressão = 'Agressão: reações agressivas, tanto físicas quanto verbais, em resposta a situações de estresse',
     outro = 'Outro',
 }

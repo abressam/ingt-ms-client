@@ -6,13 +6,13 @@ import { PutClientReqDto } from '@app/modules/client/dtos/request/put-client.req
 
 export interface ClientServiceInterface {
     getRDP(
-        userUuid: string, 
+        user: string, 
         startDate?: string, 
         endDate?: string, 
         emotion?: string, 
         pacientId?: number
     ): Promise<GetClientResDto>;
-    postRDP(userUuid: string, body: PostClientReqDto): Promise<GetSingleClientResDto>
-    putRDP(userUuid: string, body: PutClientReqDto): Promise<GetSingleClientResDto>
-    deleteRPD(RdpUuid: string, userUuid: string): Promise<DeleteClientResDto>
+    postRDP(user: string, responsibleCrp: string, pacientId, body: PostClientReqDto): Promise<GetSingleClientResDto>
+    putRDP(user: string, body: PutClientReqDto): Promise<GetSingleClientResDto>
+    deleteRPD(user: string, uuid: string, clientId: string): Promise<DeleteClientResDto>
 }

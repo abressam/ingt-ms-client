@@ -1,28 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum } from 'class-validator';
-import { Behavior } from "enum/behavior.enum";
-import { Emotion } from "enum/emotion.enum";
-import { Thought } from "enum/thoght.enum";
-import { PhysiologicalReaction } from "enum/physiological-reaction.enum";
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class PostClientReqDto {
-    @ApiProperty({ enum: Emotion, required: true })
-    @IsEnum(Emotion)
-    emotion: Emotion;
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    emotion: string;
 
-    @ApiProperty({ enum: PhysiologicalReaction, required: true })
-    @IsEnum(PhysiologicalReaction)
-    physiological_reaction: PhysiologicalReaction;
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    physiologicalReaction: string;
   
-    @ApiProperty({ type: String, required: true })
+    @ApiProperty()
+    @IsNotEmpty()
     @IsString()
     situation: string;
   
-    @ApiProperty({ enum: Thought, required: true })
-    @IsEnum(Thought)
-    thought: Thought;
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    thought: string;
   
-    @ApiProperty({ enum: Behavior, required: true })
-    @IsEnum(Behavior)
-    behavior: Behavior;
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    behavior: string;
 }

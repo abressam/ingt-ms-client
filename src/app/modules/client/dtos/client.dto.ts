@@ -10,7 +10,7 @@ export class ClientDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    physiological_reaction: string;
+    physiologicalReaction: string;
   
     @ApiProperty()
     @IsString()
@@ -31,4 +31,9 @@ export class ClientDto {
     @IsNumber()
     @IsNotEmpty()
     pacientId: number;
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    responsibleCrp: string;
 }

@@ -2,7 +2,7 @@ import { ClientService } from '@app/modules/client/services/client.service';
 import { ClientControllerInterface } from '@app/modules/client/controllers/client.controller.interface';
 import { ErrorDto } from '@app/modules/session/dtos/error.dto';
 import { DeleteClientResDto } from '@app/modules/client/dtos/response/delete-client-res.dto';
-import { DeleteClientReqDto } from '@app/modules/client/dtos/request/delete-client-req.dto';
+import { GetClietUuidReqDto } from '@app/modules/client/dtos/request/get-client-uuid-req.dto';
 import { GetClientResDto } from '@app/modules/client/dtos/response/get-client-res.dto';
 import { GetSingleClientResDto } from '@app/modules/client//dtos/response/get-single-client-res.dto';
 import { PostClientReqDto } from '@app/modules/client/dtos/request/post-client-req.dto';
@@ -62,9 +62,9 @@ export class ClientController implements ClientControllerInterface {
     const logger = new Logger(ClientController.name);
 
     try {
-        const userUuid = req['userUuid'];
+        const user = req['cpfCnpj'];
         logger.log('getRDP()');
-        return await this.clientService.getRDP(userUuid);
+        return await this.clientService.getRDP(user, startDate, endDate, emotion, pacientId);
     } catch (error) {
         logger.error(error);
         throw new HttpException(error.message, error.getStatus());
@@ -89,9 +89,11 @@ export class ClientController implements ClientControllerInterface {
     const logger = new Logger(ClientController.name);
 
     try {
-        const userUuid = req['userUuid'];
+        const user = req['cpfCnpj'];
+        const pacientId = req['pacientId'];
+        const responsibleCrp = req['responsibleCrp'];
         logger.log('postRDP()');
-        return await this.clientService.postRDP(userUuid, body);
+        return await this.clientService.postRDP(user, responsibleCrp, pacientId, body);
     } catch (error) {
         logger.error(error);
         throw new HttpException(error.message, error.getStatus());
@@ -116,16 +118,16 @@ export class ClientController implements ClientControllerInterface {
     const logger = new Logger(ClientController.name);
 
     try {
-        const userUuid = req['userUuid'];
+        const user = req['cpfCnpj'];
         logger.log('putRDP()');
-        return await this.clientService.putRDP(userUuid, body);
+        return await this.clientService.putRDP(user, body);
     } catch (error) {
         logger.error(error);
         throw new HttpException(error.message, error.getStatus());
     }
   }
 
-  @Delete('delete/:id')
+  @Delete('delete/:uuid')
   @HttpCode(200)
   @ApiBearerAuth('auth')
   @ApiOperation({ summary: 'Delete the user data' })
@@ -139,14 +141,13 @@ export class ClientController implements ClientControllerInterface {
     description: 'Internal server error',
     type: ErrorDto,
   })
-  async deleteRPD(@Param() params: DeleteClientReqDto, @Request() req: Request) {
+  async deleteRPD(@Request() req: Request, @Param('uuid') uuid: string) {
     const logger = new Logger(ClientController.name);
 
     try {
-        const userUuid = req['userUuid'];
-        const rdpUuid = params.uuid;
+        const user = req['cpfCnpj'];
         logger.log('deleteRPD()');
-        return await this.clientService.deleteRPD(rdpUuid, userUuid);
+        return await this.clientService.deleteRPD(user, uuid);
     } catch (error) {
         logger.error(error);
         throw new HttpException(error.message, error.getStatus());

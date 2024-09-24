@@ -3,28 +3,31 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Client extends Document {
-   @Prop({ type: String, required: true, index: true })
+   @Prop({ index: true })
    uuid: string;   
    
-   @Prop({ type: Number, required: true })
+   @Prop()
    pacientId: number;
+
+   @Prop()
+   cpfCnpj: string;
    
-   @Prop({ type: String, required: true })
-   crp: string;
+   @Prop()
+   responsibleCrp: string;
    
-   @Prop({ type: String, required: true })
+   @Prop()
    emotion: string;   
    
-   @Prop({ type: String, required: true })
-   physiological_reaction: string;
+   @Prop()
+   physiologicalReaction: string;
 
-   @Prop({ type: String, required: true })
+   @Prop()
    situation: string;
 
-   @Prop({ type: String, required: true })
+   @Prop()
    thought: string;
 
-   @Prop({ type: String, required: true })
+   @Prop()
    behavior: string;
 }
 
