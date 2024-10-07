@@ -2,15 +2,14 @@ import { ClientService } from '@app/modules/client/services/client.service';
 import { ClientControllerInterface } from '@app/modules/client/controllers/client.controller.interface';
 import { ErrorDto } from '@app/modules/session/dtos/error.dto';
 import { DeleteClientResDto } from '@app/modules/client/dtos/response/delete-client-res.dto';
-import { GetClietUuidReqDto } from '@app/modules/client/dtos/request/get-client-uuid-req.dto';
+import { GetClietRdpReqDto } from '@app/modules/client/dtos/request/get-client-filter-rdp-req.dto';
+import { GetClietMyRdpsReqDto } from '@app/modules/client/dtos/request/get-client-filter-my-rdps-req.dto';
 import { GetClientResDto } from '@app/modules/client/dtos/response/get-client-res.dto';
-import { GetSingleClientResDto } from '@app/modules/client//dtos/response/get-single-client-res.dto';
 import { PostClientReqDto } from '@app/modules/client/dtos/request/post-client-req.dto';
 import { PutClientReqDto } from '@app/modules/client/dtos/request/put-client.req.dto';
 import {
   ApiOperation,
   ApiResponse,
-  ApiQuery,
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
@@ -34,7 +33,7 @@ import {
 export class ClientController implements ClientControllerInterface {
   constructor(private readonly clientService: ClientService) {}
 
-  @Get('get')
+  @Get('get-my-patients-rdps')
   @HttpCode(200)
   @ApiBearerAuth('auth')
   @ApiOperation({ summary: 'Get the client data' })
@@ -48,23 +47,46 @@ export class ClientController implements ClientControllerInterface {
     description: 'Internal server error',
     type: ErrorDto,
   })
-  @ApiQuery({ name: 'startDate', required: false, description: 'RDP start date' })
-  @ApiQuery({ name: 'endDate', required: false, description: 'RDP end date' })
-  @ApiQuery({ name: 'emotion', required: false, description: 'RDP emotion' })
-  @ApiQuery({ name: 'pacientId', required: false, description: 'RDP pacientId' })
-  async getRDP(
+  async getPatientsRDP(
     @Request() req: Request,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-    @Query('emotion') emotion?: string,
-    @Query('pacientId') pacientId?: number,
+    @Query() filter?: GetClietRdpReqDto
 ) {
     const logger = new Logger(ClientController.name);
 
     try {
-        const user = req['cpfCnpj'];
-        logger.log('getRDP()');
-        return await this.clientService.getRDP(user, startDate, endDate, emotion, pacientId);
+        const user = req['crp'];
+        logger.log('getPatientsRDP()');
+        return await this.clientService.getPatientsRDP(user, filter.patientId, filter.startDate, filter.endDate, filter.emotion);
+    } catch (error) {
+        logger.error(error);
+        throw new HttpException(error.message, error.getStatus());
+    }
+  }
+
+  @Get('get/my-rdps')
+  @HttpCode(200)
+  @ApiBearerAuth('auth')
+  @ApiOperation({ summary: 'Get the client data' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a JSON with the client data',
+    type: GetClientResDto,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: ErrorDto,
+  })
+  async getMyRDP(
+    @Request() req: Request,
+    @Query() filter?: GetClietMyRdpsReqDto
+) {
+    const logger = new Logger(ClientController.name);
+
+    try {
+        const user = req['patientId'];
+        logger.log('getMyRDP()');
+        return await this.clientService.getMyRDP(user, filter.startDate, filter.endDate, filter.emotion);
     } catch (error) {
         logger.error(error);
         throw new HttpException(error.message, error.getStatus());
@@ -78,7 +100,7 @@ export class ClientController implements ClientControllerInterface {
   @ApiResponse({
     status: 200,
     description: 'Returns a JSON with the client data',
-    type: GetSingleClientResDto,
+    type: GetClientResDto,
   })
   @ApiResponse({
     status: 500,
@@ -89,11 +111,10 @@ export class ClientController implements ClientControllerInterface {
     const logger = new Logger(ClientController.name);
 
     try {
-        const user = req['cpfCnpj'];
-        const pacientId = req['pacientId'];
+        const user = req['patientId'];
         const responsibleCrp = req['responsibleCrp'];
         logger.log('postRDP()');
-        return await this.clientService.postRDP(user, responsibleCrp, pacientId, body);
+        return await this.clientService.postRDP(user, responsibleCrp, body);
     } catch (error) {
         logger.error(error);
         throw new HttpException(error.message, error.getStatus());
@@ -107,7 +128,7 @@ export class ClientController implements ClientControllerInterface {
   @ApiResponse({
     status: 200,
     description: 'Returns a JSON with the user data',
-    type: GetSingleClientResDto,
+    type: GetClientResDto,
   })
   @ApiResponse({
     status: 500,
@@ -118,7 +139,7 @@ export class ClientController implements ClientControllerInterface {
     const logger = new Logger(ClientController.name);
 
     try {
-        const user = req['cpfCnpj'];
+        const user = req['patientId'];
         logger.log('putRDP()');
         return await this.clientService.putRDP(user, body);
     } catch (error) {
@@ -145,7 +166,7 @@ export class ClientController implements ClientControllerInterface {
     const logger = new Logger(ClientController.name);
 
     try {
-        const user = req['cpfCnpj'];
+        const user = req['patientId'];
         logger.log('deleteRPD()');
         return await this.clientService.deleteRPD(user, uuid);
     } catch (error) {

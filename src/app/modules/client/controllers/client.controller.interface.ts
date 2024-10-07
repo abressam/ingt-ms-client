@@ -1,19 +1,20 @@
 import { DeleteClientResDto } from '@app/modules/client/dtos/response/delete-client-res.dto';
-import { GetClietUuidReqDto } from '@app/modules/client/dtos/request/get-client-uuid-req.dto';
 import { GetClientResDto } from '@app/modules/client/dtos/response/get-client-res.dto';
-import { GetSingleClientResDto } from '@app/modules/client//dtos/response/get-single-client-res.dto';
+import { GetClietMyRdpsReqDto } from '@app/modules/client/dtos/request/get-client-filter-my-rdps-req.dto';
 import { PostClientReqDto } from '@app/modules/client/dtos/request/post-client-req.dto';
 import { PutClientReqDto } from '@app/modules/client/dtos/request/put-client.req.dto';
+import { GetClietRdpReqDto } from '@app/modules/client//dtos/request/get-client-filter-rdp-req.dto';
 
 export interface ClientControllerInterface {
-    getRDP(
+    getPatientsRDP(
         req: Request,
-        startDate?: string,
-        endDate?: string,
-        emotion?: string,
-        pacientId?: number,
+        filter?: GetClietRdpReqDto
     ): Promise<GetClientResDto>;
-    postRDP(req: Request, body: PostClientReqDto): Promise<GetSingleClientResDto>;
-    putRDP(req: Request, param: GetClietUuidReqDto, body: PutClientReqDto): Promise<GetSingleClientResDto>;
+    getMyRDP(
+        req: Request,
+        filter?: GetClietMyRdpsReqDto
+    ): Promise<GetClientResDto>;
+    postRDP(req: Request, body: PostClientReqDto): Promise<GetClientResDto>;
+    putRDP(req: Request, body: PutClientReqDto): Promise<GetClientResDto>;
     deleteRPD(req: Request, param: string ): Promise<DeleteClientResDto>;
 }

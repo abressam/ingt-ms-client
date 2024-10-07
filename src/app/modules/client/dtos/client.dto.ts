@@ -1,16 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray } from 'class-validator';
 
 export class ClientDto {
-    @ApiProperty()
-    @IsString()
+    @ApiProperty({ type: [String] })
     @IsNotEmpty()
-    emotion: string;
+    @IsArray()
+    @IsString({ each: true })
+    emotion: string[];
 
-    @ApiProperty()
-    @IsString()
+    @ApiProperty({ type: [String] })
     @IsNotEmpty()
-    physiologicalReaction: string;
+    @IsArray()
+    @IsString({ each: true })
+    physiologicalReaction: string[];
   
     @ApiProperty()
     @IsString()
@@ -22,15 +24,16 @@ export class ClientDto {
     @IsNotEmpty()
     thought: string;
 
+    @ApiProperty({ type: [String] })
+    @IsNotEmpty()
+    @IsArray()
+    @IsString({ each: true })
+    behavior: string[];
+  
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    behavior: string;
-  
-    @ApiProperty()
-    @IsNumber()
-    @IsNotEmpty()
-    pacientId: number;
+    patientId: string;
 
     @ApiProperty()
     @IsString()

@@ -1,10 +1,9 @@
 import { ClientServiceInterface } from '@app/modules/client/services/client.service.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { DeleteClientResDto } from '@app/modules/client/dtos/response/delete-client-res.dto';
 import { GetClientResDto } from '@app/modules/client/dtos/response/get-client-res.dto';
-import { GetSingleClientResDto } from '@app/modules/client//dtos/response/get-single-client-res.dto';
 import { PostClientReqDto } from '@app/modules/client/dtos/request/post-client-req.dto';
 import { PutClientReqDto } from '@app/modules/client/dtos/request/put-client.req.dto';
 import { ClientDto } from '@app/modules/client/dtos/client.dto';
@@ -13,7 +12,6 @@ import { convertToISODate, generateUuid } from '@app/modules/client/utils/client
 import { validateEnumKey } from '@app/modules/client/utils/validateEnum.util';
 import { Behavior } from "@app/modules/client/enums/behavior.enum";
 import { Emotion } from "@app/modules/client/enums/emotion.enum";
-import { Thought } from "@app/modules/client/enums/thoght.enum";
 import { PhysiologicalReaction } from "@app/modules/client/enums/physiological.reaction.enum";
 
 @Injectable()
@@ -23,93 +21,137 @@ export class ClientService implements ClientServiceInterface {
     private clientModel: Model<Client>,
   ) {}
 
-  async getRDP(
-    user: string, 
+  async getPatientsRDP(
+    crp: string,
     startDate?: string, 
     endDate?: string, 
     emotion?: string, 
-    pacientId?: number
-): Promise<GetClientResDto> {
-    this.validateAuth(user);
-    let rpds = null;
+    patientId?: string
+  ): Promise<GetClientResDto> {
+    this.validateAuth(crp);
+    const filter: any = { responsibleCrp: crp };
 
-    const userObject = await this.clientModel.findOne({ cpfCnpj: user }).exec();
+    if (startDate && !endDate) {
+      throw new HttpException('endDate is required when startDate is provided', HttpStatus.BAD_REQUEST);
+    }
 
-    const queryOptions = this.checkUserType(userObject, user, pacientId);
+    if (!startDate && endDate) {
+      throw new HttpException('startDate is required when endDate is provided', HttpStatus.BAD_REQUEST);
+    }
+
+    if (startDate) {
+      const ISOstartDate = convertToISODate(startDate);
+      filter.date = { $gte: ISOstartDate }; // Adiciona um filtro para >= startDate
+    }
+
+    if (endDate) {
+      const ISOendDate = convertToISODate(endDate);
+      if (filter.date) {
+        filter.date = { ...filter.date, $lte: ISOendDate }; // Adiciona um filtro para <= endDate
+      } else {
+        filter.date = { $lte: ISOendDate }; // Cria um novo filtro para <= endDate
+      }
+    }
+ 
+    if (patientId) {
+        filter.patientId = patientId;
+    }
 
     if (emotion) {
-        queryOptions.emotion = emotion;
+      filter.emotion = emotion;
     }
 
-    if (startDate && endDate) {
-        const isoStartDate = convertToISODate(startDate);
-        const isoEndDate = convertToISODate(endDate);
+    const rdps = await this.clientModel.find(filter).exec();
 
-        queryOptions.createdAt = { 
-            $gte: new Date(isoStartDate),  // maior ou igual a startDate
-            $lte: new Date(isoEndDate)     // menor ou igual a endDate
-        };
-    }
-
-    console.log("Valor do queryOptions", queryOptions);
-
-    const keys = Object.keys(queryOptions);
-
-    if(keys[0] == "userObject") {
-      rpds = await this.clientModel.find({ cpfCnpj: user }); 
-    } else {
-      // outras chaves aqui
-    }
-
-    if (rpds.length === 0) {
+    if (!rdps || rdps.length === 0) {
       return { client: [] };
-    }
+  }
 
     return { 
-      client: rpds.map((rpd) => rpd)
+      client: rdps.map((rpd) => rpd)
     };
   }
 
-  async postRDP(user: string, responsibleCrp: string, pacientId: string, body: PostClientReqDto): Promise<GetSingleClientResDto> {
-    this.validateAuth(user);
-    const uuid = generateUuid();
-    
-    if (pacientId === null || responsibleCrp === null) {
-      throw new HttpException('Only patients can create RDP', HttpStatus.BAD_REQUEST);
+  async getMyRDP(
+    patientId: string,
+    startDate?: string, 
+    endDate?: string, 
+    emotion?: string, 
+  ): Promise<GetClientResDto> {
+    this.validateAuth(patientId);
+    const filter: any = { patientId: patientId };
+
+    if (startDate && !endDate) {
+      throw new HttpException('endDate is required when startDate is provided', HttpStatus.BAD_REQUEST);
     }
 
-    validateEnumKey(body.physiologicalReaction, PhysiologicalReaction);
-    validateEnumKey(body.behavior, Behavior);
-    validateEnumKey(body.emotion, Emotion);
-    validateEnumKey(body.thought, Thought);
+    if (!startDate && endDate) {
+      throw new HttpException('startDate is required when endDate is provided', HttpStatus.BAD_REQUEST);
+    }
+
+    if (startDate) {
+      const ISOstartDate = convertToISODate(startDate);
+      filter.date = { $gte: ISOstartDate }; // Adiciona um filtro para >= startDate
+    }
+
+    if (endDate) {
+      const ISOendDate = convertToISODate(endDate);
+      if (filter.date) {
+        filter.date = { ...filter.date, $lte: ISOendDate }; // Adiciona um filtro para <= endDate
+      } else {
+        filter.date = { $lte: ISOendDate }; // Cria um novo filtro para <= endDate
+      }
+    }
+
+    if (emotion) {
+      filter.emotion = emotion;
+    }
+
+    const rdps = await this.clientModel.find(filter).exec();
+
+    if (!rdps || rdps.length === 0) {
+      return { client: [] };
+  }
+
+    return { 
+      client: rdps.map((rpd) => rpd)
+    };
+  }
+
+  async postRDP(patientId: string, responsibleCrp: string, body: PostClientReqDto): Promise<GetClientResDto> {
+    this.validateAuth(patientId);
+    const uuid = generateUuid();
+
+    body.physiologicalReaction.forEach(p => validateEnumKey(p, PhysiologicalReaction));
+    body.behavior.forEach(b => validateEnumKey(b, Behavior));
+    body.emotion.forEach(e => validateEnumKey(e, Emotion));
 
     const createdRdp = new this.clientModel({
       ...body,
       uuid: uuid,
-      cpfCnpj: user,
       responsibleCrp: responsibleCrp,
-      pacientId: pacientId
+      patientId: patientId
     });
     
     const rdp = await createdRdp.save();
 
     return {
-      client: {
+      client: [{
         emotion: rdp.emotion,
         physiologicalReaction: rdp.physiologicalReaction,
         situation: rdp.situation,
         thought: rdp.thought,
         behavior: rdp.behavior,
-        pacientId: rdp.pacientId,
+        patientId: rdp.patientId,
         responsibleCrp: responsibleCrp
-      },
+      }],
     };
     
   }
 
 
-  async putRDP(user: string, body: PutClientReqDto): Promise<GetSingleClientResDto> {
-    this.validateAuth(user);
+  async putRDP(patientId: string, body: PutClientReqDto): Promise<GetClientResDto> {
+    this.validateAuth(patientId);
 
     const rdpOld = await this.clientModel.findOne({ uuid: body.uuid }).exec();
 
@@ -129,10 +171,6 @@ export class ClientService implements ClientServiceInterface {
         validateEnumKey(body.emotion, Emotion);
     }
 
-    if (body.thought) {
-        validateEnumKey(body.thought, Thought);
-    }
-
     await this.clientModel.updateOne(
         { uuid: body.uuid },
         {
@@ -147,23 +185,22 @@ export class ClientService implements ClientServiceInterface {
     );
 
     return {
-      client: {
+      client: [{
         emotion: rdpNew.emotion,
         physiologicalReaction: rdpNew.physiologicalReaction,
         situation: rdpNew.situation,
         thought: rdpNew.thought,
         behavior: rdpNew.behavior,
-        pacientId: rdpNew.pacientId,
+        patientId: rdpNew.patientId,
         responsibleCrp: rdpNew.responsibleCrp
-      },
+      }],
     };
   }
 
-  async deleteRPD(user: string, uuid: string): Promise<DeleteClientResDto> {
-    this.validateAuth(user);
+  async deleteRPD(patientId: string, uuid: string): Promise<DeleteClientResDto> {
+    this.validateAuth(patientId);
 
     const rdp = await this.clientModel.findOne({ uuid: uuid }).exec();
-
     this.validateRDP(rdp);
 
     await rdp.deleteOne();
@@ -174,9 +211,10 @@ export class ClientService implements ClientServiceInterface {
     };
   }
 
-  private validateRDP(client: ClientDto) {
-    if (!client) {
-      throw new HttpException('No RPD register found', HttpStatus.NOT_FOUND);
+
+  private validateRDP(client: ClientDto | null): void {
+    if (!client || !client.emotion || !client.physiologicalReaction) {
+        throw new HttpException('No RPD register found', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -184,22 +222,5 @@ export class ClientService implements ClientServiceInterface {
     if (!user) {
       throw new HttpException('Invalid session', HttpStatus.UNAUTHORIZED);
     }
-  }
-
-  private checkUserType(user: any, userObject: string, pacientId?: number): any {
-    const queryOptions: any = {};
-
-    // if is a professional
-    if(user && user.crp) {
-      if(pacientId) {
-        queryOptions.pacientId = pacientId; // search for one specific pacient
-      } else {
-        queryOptions.userObject = userObject; // return all the pacients registers
-      }
-    } else {
-      queryOptions.userObject = userObject; // if you are a pacient, just see your registers
-    }
-    
-    return queryOptions;
   }
 }

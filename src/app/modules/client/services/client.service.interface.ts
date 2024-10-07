@@ -1,18 +1,23 @@
-import { DeleteClientResDto } from '@app/modules/client//dtos/response/delete-client-res.dto';
-import { GetClientResDto } from '@app/modules/client//dtos/response/get-client-res.dto';
-import { GetSingleClientResDto } from '@app/modules/client//dtos/response/get-single-client-res.dto';
+import { DeleteClientResDto } from '@app/modules/client/dtos/response/delete-client-res.dto';
+import { GetClientResDto } from '@app/modules/client/dtos/response/get-client-res.dto';
 import { PostClientReqDto } from '@app/modules/client/dtos/request/post-client-req.dto';
 import { PutClientReqDto } from '@app/modules/client/dtos/request/put-client.req.dto';
 
 export interface ClientServiceInterface {
-    getRDP(
-        user: string, 
+    getPatientsRDP(
+        crp: string,
         startDate?: string, 
         endDate?: string, 
         emotion?: string, 
-        pacientId?: number
+        patientId?: string
     ): Promise<GetClientResDto>;
-    postRDP(user: string, responsibleCrp: string, pacientId, body: PostClientReqDto): Promise<GetSingleClientResDto>
-    putRDP(user: string, body: PutClientReqDto): Promise<GetSingleClientResDto>
-    deleteRPD(user: string, uuid: string, clientId: string): Promise<DeleteClientResDto>
+    getMyRDP(
+        patientId: string,
+        startDate?: string, 
+        endDate?: string, 
+        emotion?: string, 
+    ): Promise<GetClientResDto>;
+    postRDP(patientId: string, responsibleCrp: string, body: PostClientReqDto): Promise<GetClientResDto>
+    putRDP(patientId: string, body: PutClientReqDto): Promise<GetClientResDto>
+    deleteRPD(patientId: string, uuid: string, clientId: string): Promise<DeleteClientResDto>
 }

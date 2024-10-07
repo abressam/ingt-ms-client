@@ -7,7 +7,7 @@ export class Client extends Document {
    uuid: string;   
    
    @Prop()
-   pacientId: number;
+   patientId: string;
 
    @Prop()
    cpfCnpj: string;
@@ -16,10 +16,10 @@ export class Client extends Document {
    responsibleCrp: string;
    
    @Prop()
-   emotion: string;   
+   emotion: string[];   
    
    @Prop()
-   physiologicalReaction: string;
+   physiologicalReaction: string[];
 
    @Prop()
    situation: string;
@@ -28,7 +28,7 @@ export class Client extends Document {
    thought: string;
 
    @Prop()
-   behavior: string;
+   behavior: string[];
 }
 
 export const ClientSchema = SchemaFactory.createForClass(Client);

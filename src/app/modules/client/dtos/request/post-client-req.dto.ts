@@ -2,15 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty } from 'class-validator';
 
 export class PostClientReqDto {
-    @ApiProperty()
+    @ApiProperty({ type: [String] })
     @IsNotEmpty()
-    @IsString()
-    emotion: string;
+    @IsString({ each: true })
+    emotion: string[];
 
-    @ApiProperty()
+    @ApiProperty({ type: [String] })
     @IsNotEmpty()
-    @IsString()
-    physiologicalReaction: string;
+    @IsString({ each: true })
+    physiologicalReaction: string[];
   
     @ApiProperty()
     @IsNotEmpty()
@@ -22,8 +22,8 @@ export class PostClientReqDto {
     @IsString()
     thought: string;
   
-    @ApiProperty()
+    @ApiProperty({ type: [String] })
     @IsNotEmpty()
-    @IsString()
-    behavior: string;
+    @IsString({ each: true })
+    behavior: string[];
 }
