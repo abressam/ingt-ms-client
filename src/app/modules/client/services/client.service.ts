@@ -159,16 +159,22 @@ export class ClientService implements ClientServiceInterface {
 
     const rdpNew = Object.assign({}, rdpOld.toObject(), body);
 
-    if (body.physiologicalReaction) {
-      validateEnumKey(body.physiologicalReaction, PhysiologicalReaction);
-    }
-    
-    if (body.behavior) {
-        validateEnumKey(body.behavior, Behavior);
-    }
+    // Verificar apenas os enums que foram alterados
+    const changedFields = {
+        physiologicalReaction: rdpOld.physiologicalReaction !== body.physiologicalReaction ? body.physiologicalReaction : null,
+        behavior: rdpOld.behavior !== body.behavior ? body.behavior : null,
+        emotion: rdpOld.emotion !== body.emotion ? body.emotion : null,
+    };
 
-    if (body.emotion) {
-        validateEnumKey(body.emotion, Emotion);
+    // Validar apenas as propriedades alteradas
+    if (changedFields.physiologicalReaction) {
+        changedFields.physiologicalReaction.forEach(p => validateEnumKey(p, PhysiologicalReaction));
+    }
+    if (changedFields.behavior) {
+        changedFields.behavior.forEach(b => validateEnumKey(b, Behavior));
+    }
+    if (changedFields.emotion) {
+        changedFields.emotion.forEach(e => validateEnumKey(e, Emotion));
     }
 
     await this.clientModel.updateOne(
